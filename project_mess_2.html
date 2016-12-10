@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Wineabees</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Insert link to css file -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Insert link to js file -->
+
+    <!-- Pull the Google API -->
+
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <img src="WineabeesLogo.png" class="logo" />
+                    <!-- <a class="navbar-brand" href="#">Wineabees</a> -->
+                </div>
+            </div>
+            <!-- /.container-fluid -->
+        </nav>
+        <div class="jumbotron">
+            <h1>Search for a winery near you</h1>
+            <div class="container">
+        <div class="row">
+              <div class="col-md-6">
+                  <!-- this is the not so nice button -->
+                  <!-- <div id="pac-input" class="controls" type="text" placeholder="Enter a location"> -->
+                      <!-- this is the nice button-->
+                      <div class="input-group col-md-12">
+                          <input id="pac-input" type="text" class="form-control input-lg controls" placeholder="Enter a city here" />
+                          <span class="input-group-btn">
+                              <button class="btn btn-info btn-sm" type="button" id="searchBtn">
+                                <i class="glyphicon glyphicon-search"></i>
+                            </button>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+        </div>
+      </div>
+      <div id="map"></div>
+        </div>
+    
+    <div id="infowindow-content">
+      <span id="place-name" class="title"></span><br>
+      Place ID <span id="place-id"></span><br>
+      <span id="place-address"></span>
+    </div>  
+
+    <!-- <div class="mapGoesHere">
+      <img src="sampleMap.jpg" />
+    </div>   -->  
+    <br>
+    <br>
+    <div class="tableSection">
+      <table class="table table-hover" id="resultsTable">
+        <tr id="headers">
+          <th>Winery</th>
+          <th>Website</th>
+          <th>Best Selling Wine</th>
+          <th>Purchase Info</th>
+        </tr>
+        <tr>
+          <th id="wineryOneName">Jill's Winery</th>
+          <th id="wineryOneURL"><button type="button" class="btn btn-success">Visit Site</button></th>
+          <th id="wineryOneBestWine">Cabernet Sauvignon</th>
+          <th id="wineryOneLink"><button type="button" class="btn btn-primary">Buy Here</button></th>
+        </tr>
+        <tr>
+          <th id="wineryTwoName">Luke's Drinking Drinky Place</th>
+          <th id="wineryTwoURL"><button type="button" class="btn btn-success">Visit Site</button></th>
+          <th id="wineryTwoBestWine">Merlot</th>
+          <th id="wineryTwoLink"><button type="button" class="btn btn-primary">Buy Here</button></th>
+        </tr>
+        <tr>
+          <th id="wineryThreeName">Hope + Wine = Love</th>
+          <th id="wineryThreeURL"><button type="button" class="btn btn-success">Visit Site</button></th>
+          <th id="wineryThreeBestWine">Sauvignon Blanc</th>
+          <th id="wineryThreeLink"><button type="button" class="btn btn-primary">Buy Here</button></th>
+        </tr>
+        <tr>
+          <th id="wineryFourName">Hope + Wine = Love</th>
+          <th id="wineryFourURL"><button type="button" class="btn btn-success">Visit Site</button></th>
+          <th id="wineryFourBestWine">Rice Wine</th>
+          <th id="wineryFourLink"><button type="button" class="btn btn-primary">Buy Here</button></th>
+        </tr>
+        <tr>
+          <th id="wineryFiveName">Hope + Wine = Love</th>
+          <th id="wineryFiveURL"><button type="button" class="btn btn-success">Visit Site</button></th>
+          <th id="wineryFiveBestWine">Cabernet Sauvignon</th>
+          <th id="wineryFiveLink"><button type="button" class="btn btn-primary">Buy Here</button></th>
+        </tr>   
+    </table>
+    </div>    
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7FPiNadNSS6x078vpZUJQnzfww2xxw_U&libraries=places&callback=initMap"
+        async defer></script>
+    <script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+    <script>
+      // This sample uses the Place Autocomplete widget to allow the user to search
+      // for and select a place. The sample then displays an info window containing
+      // the place ID and other information about the place that the user has
+      // selected.
+// This example requires the Places library. Include the libraries=places
+// parameter when you first load the API. For example:
+// <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
+var map;
+var infowindow;
+
+function initMap() {
+  var sugarLand = {lat: 29.7604, lng: -95.3698};
+
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: sugarLand,
+    zoom: 13
+  });
+    
+  var request = {
+      location: sugarLand,
+    radius: '500',
+    query: 'wineries'
+  }
+  
+  infowindow = new google.maps.InfoWindow();
+  var service = new google.maps.places.PlacesService(map);
+  service.textSearch(request, callback);
+}
+
+function callback(results, status) {
+  if (status === google.maps.places.PlacesServiceStatus.OK) {
+    for (var i = 0; i < results.length; i++) {
+      createMarker(results[i]);
+    }
+  }
+}
+
+function createMarker(place) {
+  var placeLoc = place.geometry.location;
+  var marker = new google.maps.Marker({
+    map: map,
+    position: placeLoc
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    infowindow.setContent(place.name);
+    infowindow.open(map, this);
+  });
+    // for (var i = 0; i < results.length; i++) {
+    //   var wineryName = results[i].name;
+    //   var marker = new google.maps.Marker({
+    //   map: map,
+    //   // place: {
+    //     // placeId: results[i].geometry.location,
+    //     position: results[i].geometry.location
+    //   // }
+    // });
+  //@todo: pass your winery api - console.log(results)
+     
+    }
+
+
+// }
+      $(document).ready(function(){
+        $("#searchBtn").on("click keypress", function(){
+        var input = document.getElementById('pac-input');
+        console.log(input);
+        initMap(input.value);
+        // THIS MOVES THE INPUT BOX
+        var autocomplete = new google.maps.places.Autocomplete(input);
+        // autocomplete.bindTo('bounds', map);
+        //map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+        var infowindow = new google.maps.InfoWindow();
+        var marker = new google.maps.Marker({
+          map: map
+        });
+        marker.addListener('click', function() {
+          infowindow.open(map, marker);
+        });
+          autocomplete.addListener('place_changed', function() {
+            infowindow.close();
+            var place = autocomplete.getPlace();
+            if (!place.geometry) {
+              return;
+            }
+            if (place.geometry.viewport) {
+              map.fitBounds(place.geometry.viewport);
+            } else {
+              map.setCenter(place.geometry.location);
+              map.setZoom(17);
+            }
+            // Set the position of the marker using the place ID and location.
+            marker.setPlace({
+              placeId: place.place_id,
+              location: place.geometry.location
+            });
+            marker.setVisible(true);
+            document.getElementById('place-name').textContent = place.name;
+            document.getElementById('place-id').textContent = place.place_id;
+            document.getElementById('place-address').textContent =
+                place.formatted_address;
+            infowindow.setContent(document.getElementById('infowindow-content'));
+            infowindow.open(map, marker);
+          });// closes autocomplete.addListener
+        }); //close on click
+      });//closes document.ready
+    </script>
+<!-- <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script> -->
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7FPiNadNSsS6x078vpZUJQnzfww2xxw_U&libraries=places&callback=initMap"></script>
+  <script src="wineLogic.js"></script> -->
+
+</body>
+
+</html>
